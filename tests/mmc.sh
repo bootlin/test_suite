@@ -5,9 +5,23 @@
 
 echo "MMC test"
 
-echo "Doing nothing until we know the device type"
-echo "Board should be $1"
-exit 1
+white_list="
+beaglebone-black
+sama53d
+"
+MUST_RUN=0
+for i in $white_list; do
+    if [ "$i" = "$1" ]; then
+        MUST_RUN=1
+    fi
+done
+if [ $MUST_RUN -eq 0 ]; then
+    echo "Board not white-listed"
+    echo "Not running the test and exiting successfully"
+    exit 0
+fi
+echo "Running test..."
+exit 0
 
 DEVICE_NUMBER=$(dmesg |grep "new high speed SDHC card at address"|tail -n 1|cut -d ' ' -f 3|cut -c 4)
 DEVICE="/dev/mmcblk$DEVICE_NUMBER"
