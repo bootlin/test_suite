@@ -1,8 +1,6 @@
 #!/bin/sh
 #
-# Skia < skia AT libskia DOT so >
-#
-# Beerware licensed software - 2017
+# Florent Jacquet <florent.jacquet@free-electrons.com>
 #
 
 cd $(dirname $0)
