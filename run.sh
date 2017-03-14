@@ -17,6 +17,7 @@ for i in ./tests/*.sh; do
         RESULTS=$((RESULTS + 1))
         echo "--> Test $i FAILED";
     fi
+    echo "================================================================================\n\n"
 done
 
 exit $RESULTS
