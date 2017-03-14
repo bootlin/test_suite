@@ -4,6 +4,7 @@
 #
 
 echo "Bonjour"
+echo "Board: $1"
 
 if [ $(tr -cd 0-9 </dev/urandom | head -c 1) -lt 7 ]; then
     echo "true";

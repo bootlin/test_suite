@@ -5,7 +5,8 @@
 
 echo "MMC test"
 
-echo "Doing nothing until we know the board type"
+echo "Doing nothing until we know the device type"
+echo "Board should be $1"
 exit 1
 
 DEVICE_NUMBER=$(dmesg |grep "new high speed SDHC card at address"|tail -n 1|cut -d ' ' -f 3|cut -c 4)
