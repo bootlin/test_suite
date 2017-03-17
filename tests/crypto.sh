@@ -20,7 +20,7 @@ case $1 in
         "
         # You can add specific algorithms here
     ;;
-    "armada-370-db"|"armada-370-rd")
+    "armada-370-db"|"armada-370-rd"|"armada-375-db"|"armada-385-db-ap"|"armada-388-clearfog"|"armada-388-gp"|"armada-xp-db"|"armada-xp-gp"|"armada-xp-linksys-mamba"|"armada-xp-openblocks-ax3-4")
         MODULES="
         kernel/crypto/des_generic.ko
         kernel/drivers/crypto/marvell/marvell-cesa.ko
