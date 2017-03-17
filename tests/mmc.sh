@@ -3,113 +3,95 @@
 # Florent Jacquet <florent.jacquet@free-electrons.com>
 #
 
-echo "MMC test"
+echo "#### Beginning MMC test ####"
 
-set -x
+# Define here the partitions given the LAVA device-type
+case $1 in
+    "sama53d")
+        PARTITIONS="
+/dev/mmcblk0p1
+"
+    ;;
+    # You can add more device-type here
+esac
 
-DEVICE_NUMBER=$(dmesg |grep "new high speed SDHC card at address"|tail -n 1|sed -e 's/.*mmc\([0-9]\):.*/\1/')
-DEVICE="/dev/mmcblk$DEVICE_NUMBER"
+for PARTITION in $PARTITIONS; do
+    if ! ls $PARTITION; then
+        echo "Can't find ${PARTITION}. Aborting"
+        exit 1
+    fi
 
-if ! ls $DEVICE; then
-    echo "Can't find ${DEVICE}. Aborting"
-    exit 1
-fi
+    echo "Creating ext4 filesystem on $PARTITION"
+    if ! mkfs.ext4 $PARTITION; then
+        echo "Can't make filesystem on ${PARTITION}. Aborting"
+        exit 1
+    fi
 
-echo "Testing raw write"
-if ! dd if=/dev/urandom of=$DEVICE bs=1M count=200; then
-    echo "Can't perform raw write to $DEVICE. Aborting"
-    exit 1
-fi
+    MOUNTPOINT="/tmp/mountpoint"
+    echo "Mounting $PARTITION to $MOUNTPOINT"
+    mkdir -p $MOUNTPOINT
+    if ! mount $PARTITION $MOUNTPOINT; then
+        echo "Can't mount $PARTITION to ${MOUNTPOINT}. Aborting"
+        exit 1
+    fi
 
-echo "Testing raw read"
-if ! dd if=$DEVICE of=/dev/null bs=1M count=200; then
-    echo "Can't perform raw read from $DEVICE. Aborting"
-    exit 1
-fi
+    TEXT_FILE="$MOUNTPOINT/text_file"
+    BIG_FILE="$MOUNTPOINT/big_file"
+    SENTENCE="And the test suite sentence you to troll!"
+    echo "Creating some files on $PARTITION"
+    if ! echo "$SENTENCE" > $TEXT_FILE; then
+        echo "Can't create ${TEXT_FILE}. Aborting"
+        exit 1
+    fi
 
-echo "Partitionning"
-sfdisk $DEVICE << EOF
-,300M,L
-,60,L
-,,L
-EOF
-if ! [ $? -eq 0 ]; then
-    echo "Can't create partitions on $DEVICE. Aborting"
-    exit 1
-fi
+    if ! dd if=/dev/urandom of=$BIG_FILE bs=1M count=200; then
+        echo "Can't create ${BIG_FILE}. Aborting"
+        exit 1
+    fi
 
-PARTITION="${DEVICE}p1"
-echo "Creating ext4 filesystem on $PARTITION"
-if ! mkfs.ext4 $PARTITION; then
-    echo "Can't make filesystem on ${PARTITION}. Aborting"
-    exit 1
-fi
+    CHECKSUM=$(sha1sum $BIG_FILE)
+    echo $CHECKSUM
 
-MOUNTPOINT="/tmp/mountpoint"
-echo "Mounting $PARTITION to $MOUNTPOINT"
-mkdir -p $MOUNTPOINT
-if ! mount $PARTITION $MOUNTPOINT; then
-    echo "Can't mount $PARTITION to ${MOUNTPOINT}. Aborting"
-    exit 1
-fi
+    echo "Unmounting $PARTITION"
+    if ! umount /tmp/mountpoint; then
+        echo "Can't unmount ${PARTITION}. Aborting"
+        exit 1
+    fi
 
-TEXT_FILE="$MOUNTPOINT/text_file"
-BIG_FILE="$MOUNTPOINT/big_file"
-SENTENCE="And the test suite sentence you to troll!"
-echo "Creating some files on $PARTITION"
-if ! echo "$SENTENCE" > $TEXT_FILE; then
-    echo "Can't create ${TEXT_FILE}. Aborting"
-    exit 1
-fi
+    echo "Remounting $PARTITION to $MOUNTPOINT"
+    if ! mount $PARTITION $MOUNTPOINT; then
+        echo "Can't remount $PARTITION to ${MOUNTPOINT}. Aborting"
+        exit 1
+    fi
 
-if ! dd if=/dev/urandom of=$BIG_FILE bs=1M count=200; then
-    echo "Can't create ${BIG_FILE}. Aborting"
-    exit 1
-fi
+    echo "Checking the files"
+    if ! ls $TEXT_FILE $BIG_FILE; then
+        echo "Can't find $TEXT_FILE or $BIG_FILE anymore in ${MOUNTPOINT}. Aborting"
+        exit 1
+    fi
 
-CHECKSUM=$(sha1sum $BIG_FILE)
-echo $CHECKSUM
-
-echo "Unmounting $PARTITION"
-if ! umount /tmp/mountpoint; then
-    echo "Can't unmount ${PARTITION}. Aborting"
-    exit 1
-fi
-
-echo "Remounting $PARTITION to $MOUNTPOINT"
-if ! mount $PARTITION $MOUNTPOINT; then
-    echo "Can't remount $PARTITION to ${MOUNTPOINT}. Aborting"
-    exit 1
-fi
-
-mount|grep $DEVICE
-
-echo "Checking the files"
-if ! ls $TEXT_FILE $BIG_FILE; then
-    echo "Can't find $TEXT_FILE or $BIG_FILE anymore in ${MOUNTPOINT}. Aborting"
-    exit 1
-fi
-
-if ! grep "$SENTENCE" $TEXT_FILE; then
-    echo "Can't find my sentence anymore in ${TEXT_FILE}. Aborting"
-    exit 1
-fi
+    if ! grep "$SENTENCE" $TEXT_FILE; then
+        echo "Can't find my sentence anymore in ${TEXT_FILE}. Aborting"
+        exit 1
+    fi
 
 
-if ! echo "$CHECKSUM"|sha1sum -c; then
-    echo "SHA1 sum of $BIG_FILE failed. Aborting"
-    exit 1
-fi
+    if ! echo "$CHECKSUM"|sha1sum -c; then
+        echo "SHA1 sum of $BIG_FILE failed. Aborting"
+        exit 1
+    fi
 
-echo "Cleaning up"
-echo "Unmounting $PARTITION"
-if ! umount $MOUNTPOINT; then
-    echo "Can't unmount ${PARTITION}. Aborting"
-    exit 1
-fi
+    echo "Cleaning up"
+    echo "Unmounting $PARTITION"
+    if ! umount $MOUNTPOINT; then
+        echo "Can't unmount ${PARTITION}. Aborting"
+        exit 1
+    fi
 
-rm -rf $MOUNTPOINT
+    rm -rf $MOUNTPOINT
+done
 
-echo "MMC test passed successfully. Exiting"
+echo "####   Successful    ####"
+echo "#### End of MMC test ####"
 exit 0
 
