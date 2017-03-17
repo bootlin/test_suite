@@ -102,6 +102,7 @@ else
 fi
 
 
+echo "####     Successful     ####"
 echo "#### End of crypto test ####"
 exit $RETURN_VALUE
 
