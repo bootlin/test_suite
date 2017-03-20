@@ -53,7 +53,7 @@ fi
 
 PARTITION="${DEVICE}1"
 echo "Creating ext4 filesystem on $PARTITION"
-if ! mkfs.ext4 $PARTITION; then
+if ! mkfs.ext4 -F -F $PARTITION; then
     echo "Can't make filesystem on ${PARTITION}. Aborting"
     exit 1
 fi
