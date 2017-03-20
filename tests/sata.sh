@@ -51,7 +51,7 @@ if ! [ $? -eq 0 ]; then
     exit 1
 fi
 
-PARTITION="${DEVICE}1"
+PARTITION="${DEVICE}3"
 echo "Creating ext4 filesystem on $PARTITION"
 if ! mkfs.ext4 $PARTITION; then
     echo "Can't make filesystem on ${PARTITION}. Aborting"
@@ -111,6 +111,22 @@ fi
 
 if ! echo "$CHECKSUM"|sha1sum -c; then
     echo "SHA1 sum of $BIG_FILE failed. Aborting"
+    exit 1
+fi
+
+echo "Checking performances with Bonnie++"
+if ! adduser -S -D -H bonnie; then # System user without password nor home
+    echo "Can't create bonnie user. Aborting"
+    exit 1
+fi
+
+if ! chown -R bonnie $MOUNTPOINT; then
+    echo "Can't give folder rights to bonnie. Aborting"
+    exit 1
+fi
+
+if ! bonnie\+\+ -u bonnie -s 4G -d $MOUNTPOINT; then
+    echo "Bonnie++ seems to have failed somewhere. Aborting"
     exit 1
 fi
 
