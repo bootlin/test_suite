@@ -1,0 +1,13 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: network-multinode
+    description: "Basic MultiNode network test"
+    maintainer:
+        - florent.jacquet@free-electrons.com
+    devices:
+        - x86-boardtop
+        - beaglebone-black
+
+run:
+    steps:
+        - ./tests/network-`lava-role`.sh `lava-self`
