@@ -125,7 +125,7 @@ if ! chown -R bonnie $MOUNTPOINT; then
     exit 1
 fi
 
-if ! bonnie\+\+ -u bonnie -s 4G -d $MOUNTPOINT; then
+if ! bonnie\+\+ -u bonnie -s 4G -f -d $MOUNTPOINT; then
     echo "Bonnie++ seems to have failed somewhere. Aborting"
     exit 1
 fi
