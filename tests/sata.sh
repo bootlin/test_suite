@@ -125,9 +125,27 @@ if ! chown -R bonnie $MOUNTPOINT; then
     exit 1
 fi
 
-if ! bonnie\+\+ -u bonnie -s 4G -f -d $MOUNTPOINT; then
+if ! bonnie\+\+ -u bonnie -s 4G -f -d $MOUNTPOINT > /tmp/bonnie.log 2>&1; then
     echo "Bonnie++ seems to have failed somewhere. Aborting"
+    cat /tmp/bonnie.log
     exit 1
+fi
+cat /tmp/bonnie.log
+SEQ_BLOCK_OUTPUT=$(tail -n 1 /tmp/bonnie.log|cut -d , -f 5)
+SEQ_BLOCK_INPUT=$(tail -n 1 /tmp/bonnie.log|cut -d , -f 11)
+echo "Sequential block output: $SEQ_BLOCK_OUTPUT"
+echo "Sequential block input: $SEQ_BLOCK_INPUT"
+if [ $SEQ_BLOCK_OUTPUT -lt 130000 ]; then
+    echo "Output too low. Aborting."
+    exit 1
+else
+    echo "Value is OK (above 130000)"
+fi
+if [ $SEQ_BLOCK_INPUT -lt 125000 ]; then
+    echo "Input too low. Aborting."
+    exit 1
+else
+    echo "Value is OK (above 120000)"
 fi
 
 echo "Cleaning up"
