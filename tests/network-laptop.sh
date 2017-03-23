@@ -8,7 +8,7 @@ check_status() {
     lava-wait $1
     STATUS=$(grep status /tmp/lava_multi_node_cache.txt | cut -d = -f 2)
     echo "Board status is \"$STATUS\""
-    if [ "$STATUS" = "failed" ]; then
+    if [ "$STATUS" = "failed" ] || [ "$STATUS" = "" ]; then
         return 1
     fi
     return 0
@@ -25,6 +25,9 @@ kill_iperf() {
 echo "#### Beginning network laptop test ####"
 
 echo "Argv1: $1"
+
+echo "Killing eventual remaining iperf instance"
+killall iperf
 
 echo "Announcing readiness"
 lava-send laptop-ready laptop_ip=`ip route get 8.8.8.8 | head -n 1 | awk '{print $NF}'`
