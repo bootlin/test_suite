@@ -4,6 +4,40 @@
 #
 # The base of the test is partly borrowed from LAVA V1 Multinode API's doc
 
+
+
+case $1 in
+    "armada-370-db")
+        EXPECTED_TCP_BANDWIDTH=900 # Unidirectionnal test
+        EXPECTED_UDP_BANDWIDTH=700 # Unidirectionnal test
+        EXPECTED_BTL_BANDWIDTH=500 # Board-to-laptop for bidirectionnal test
+        EXPECTED_LTB_BANDWIDTH=800 # Laptop-to-board for bidirectionnal test
+        ;;
+    "armada-388-gp")
+        EXPECTED_TCP_BANDWIDTH=900
+        EXPECTED_UDP_BANDWIDTH=750
+        EXPECTED_BTL_BANDWIDTH=850
+        EXPECTED_LTB_BANDWIDTH=70
+        ;;
+    *) # All values are in Mbits/sec (80 Mbits/sec should work on most boards)
+        EXPECTED_TCP_BANDWIDTH=80 # Unidirectionnal test
+        EXPECTED_UDP_BANDWIDTH=80 # Unidirectionnal test
+        EXPECTED_BTL_BANDWIDTH=80 # Board-to-laptop for bidirectionnal test
+        EXPECTED_LTB_BANDWIDTH=80 # Laptop-to-board for bidirectionnal test
+        ;;
+esac
+
+
+# You don't need to touch anything below this
+# =============================================================
+
+
+echo "#### Beginning network board test ####"
+
+echo "Argv1: $1"
+
+RESULT=0
+
 check_status() {
     lava-wait $1
     STATUS=$(grep status /tmp/lava_multi_node_cache.txt | cut -d = -f 2)
@@ -21,13 +55,6 @@ kill_iperf() {
     fi
     return 0
 }
-
-RESULT=0
-
-echo "#### Beginning network board test ####"
-
-echo "Argv1: $1"
-
 
 lava-wait laptop-ready
 LAPTOP=$(grep laptop_ip /tmp/lava_multi_node_cache.txt | cut -d = -f 2)
@@ -60,11 +87,11 @@ if ! iperf -c $LAPTOP -y c > /tmp/iperf.log; then
 fi
 BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
 echo "TCP bandwidth: $BANDWIDTH Mbits/sec"
-if [ $BANDWIDTH -lt 100 ]; then
-    echo "TCP bandwidth too low. Expected: 100 Mbits/sec"
+if [ $BANDWIDTH -lt $EXPECTED_TCP_BANDWIDTH ]; then
+    echo "TCP bandwidth too low. Expected: $EXPECTED_TCP_BANDWIDTH Mbits/sec"
     RESULT=1
 else
-    echo "TCP bandwidth value OK. (Expected: >100 Mbits/sec)"
+    echo "TCP bandwidth value OK. (Expected: >$EXPECTED_TCP_BANDWIDTH Mbits/sec)"
 fi
 lava-send board-tcp-done status=success
 
@@ -73,18 +100,19 @@ if ! check_status laptop-udp-ready; then
     echo "Laptop has a problem. Aborting."
     exit 1
 fi
-if ! iperf -c $LAPTOP -u -y c > /tmp/iperf.log; then
+# Testing with very high bandwidth (4000 Gbits/sec) to get maximum value
+if ! iperf -c $LAPTOP -u -b 4000000000 -y c > /tmp/iperf.log; then
     echo "Can not launch iperf or iperf failed. Aborting"
     lava-send board-udp-done status=failed
     exit 1
 fi
-BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000))
-echo "UDP bandwidth: $BANDWIDTH Kbits/sec"
-if [ $BANDWIDTH -lt 1000 ]; then
-    echo "UDP bandwidth too low. Expected: 1000 Kbits/sec"
+BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
+echo "UDP bandwidth: $BANDWIDTH Mbits/sec"
+if [ $BANDWIDTH -lt $EXPECTED_UDP_BANDWIDTH ]; then
+    echo "UDP bandwidth too low. Expected: $EXPECTED_UDP_BANDWIDTH Mbits/sec"
     RESULT=1
 else
-    echo "UDP bandwidth value OK. (Expected: >1000 Kbits/sec)"
+    echo "UDP bandwidth value OK. (Expected: >$EXPECTED_UDP_BANDWIDTH Mbits/sec)"
 fi
 lava-send board-udp-done status=success
 
@@ -112,22 +140,22 @@ if ! check_status laptop-bi-done; then
 fi
 kill_iperf
 cat /tmp/iperf.log
-BTL_BANDWIDTH=$(( $(head -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000))
-LTB_BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000))
-echo "Board-to-laptop bandwidth: $BTL_BANDWIDTH Kbits/sec"
-echo "Laptop-to-board bandwidth: $LTB_BANDWIDTH Kbits/sec"
-# if [ $LTB_BANDWIDTH -lt 1000 ]; then
-#     echo "Laptop-to-board bandwidth too low. Expected: 1000 Kbits/sec"
-#     RESULT=1
-# else
-#     echo "Laptop-to-board bandwidth value OK. (Expected: >1000 Kbits/sec)"
-# fi
-# if [ $BTL_BANDWIDTH -lt 1000 ]; then
-#     echo "Board-to-laptop bandwidth too low. Expected: 1000 Kbits/sec"
-#     RESULT=1
-# else
-#     echo "Board-to-laptop bandwidth value OK. (Expected: >1000 Kbits/sec)"
-# fi
+BTL_BANDWIDTH=$(( $(head -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
+LTB_BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
+echo "Board-to-laptop bandwidth: $BTL_BANDWIDTH Mbits/sec"
+echo "Laptop-to-board bandwidth: $LTB_BANDWIDTH Mbits/sec"
+if [ $LTB_BANDWIDTH -lt $EXPECTED_LTB_BANDWIDTH ]; then
+    echo "Laptop-to-board bandwidth too low. Expected: $EXPECTED_LTB_BANDWIDTH Mbits/sec"
+    RESULT=1
+else
+    echo "Laptop-to-board bandwidth value OK. (Expected: >$EXPECTED_LTB_BANDWIDTH Mbits/sec)"
+fi
+if [ $BTL_BANDWIDTH -lt $EXPECTED_BTL_BANDWIDTH ]; then
+    echo "Board-to-laptop bandwidth too low. Expected: $EXPECTED_BTL_BANDWIDTH Mbits/sec"
+    RESULT=1
+else
+    echo "Board-to-laptop bandwidth value OK. (Expected: >$EXPECTED_BTL_BANDWIDTH Mbits/sec)"
+fi
 
 if [ $RESULT -eq 0 ]; then
     echo "####   Successful    ####"
