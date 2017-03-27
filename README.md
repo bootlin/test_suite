@@ -38,12 +38,12 @@ metadata:
 
 run:
     steps:
-        - ./tests/my-test-`lava-role`.sh `lava-self`
+        - ./tests_multinode/my-test-`lava-role`.sh `lava-self`
 ```
 
 Here is a very simple example of that file, that will just call
-`./tests/my-test-laptop.sh my_laptop` on the laptop, and
-`./tests/my-test-board.sh my_board`.
+`./tests_multinode/my-test-laptop.sh my_laptop` on the laptop, and
+`./tests_multinode/my-test-board.sh my_board`.
 
 Here, `lava-role` returns the role the command is running on, and `lava-self` is
 the device name.
