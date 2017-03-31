@@ -10,74 +10,50 @@ case $1 in
     "armada-370-db")
         EXPECTED_TCP_BANDWIDTH=900 # Unidirectionnal test
         EXPECTED_UDP_BANDWIDTH=700 # Unidirectionnal test
-        EXPECTED_BTL_BANDWIDTH=500 # Board-to-laptop for bidirectionnal test
-        EXPECTED_LTB_BANDWIDTH=800 # Laptop-to-board for bidirectionnal test
         ;;
     "armada-370-rd")
         EXPECTED_TCP_BANDWIDTH=900
         EXPECTED_UDP_BANDWIDTH=700
-        EXPECTED_BTL_BANDWIDTH=800
-        EXPECTED_LTB_BANDWIDTH=10
         ;;
     "armada-388-clearfog")
         EXPECTED_TCP_BANDWIDTH=900
         EXPECTED_UDP_BANDWIDTH=750
-        EXPECTED_BTL_BANDWIDTH=700
-        EXPECTED_LTB_BANDWIDTH=30
         ;;
     "armada-388-gp")
         EXPECTED_TCP_BANDWIDTH=900
         EXPECTED_UDP_BANDWIDTH=750
-        EXPECTED_BTL_BANDWIDTH=850
-        EXPECTED_LTB_BANDWIDTH=70
         ;;
     "armada-xp-linksys-mamba")
         EXPECTED_TCP_BANDWIDTH=900
         EXPECTED_UDP_BANDWIDTH=750
-        EXPECTED_BTL_BANDWIDTH=900
-        EXPECTED_LTB_BANDWIDTH=900
         ;;
     "at91sam9m10g45ek")
         EXPECTED_TCP_BANDWIDTH=85
         EXPECTED_UDP_BANDWIDTH=85
-        EXPECTED_BTL_BANDWIDTH=40
-        EXPECTED_LTB_BANDWIDTH=40
         ;;
     "at91sam9x25ek")
         EXPECTED_TCP_BANDWIDTH=85
         EXPECTED_UDP_BANDWIDTH=75
-        EXPECTED_BTL_BANDWIDTH=50
-        EXPECTED_LTB_BANDWIDTH=30
         ;;
     "at91sam9x35ek")
         EXPECTED_TCP_BANDWIDTH=85
         EXPECTED_UDP_BANDWIDTH=70
-        EXPECTED_BTL_BANDWIDTH=45
-        EXPECTED_LTB_BANDWIDTH=30
         ;;
     "at91rm9200ek")
         EXPECTED_TCP_BANDWIDTH=25
         EXPECTED_UDP_BANDWIDTH=25
-        EXPECTED_BTL_BANDWIDTH=20
-        EXPECTED_LTB_BANDWIDTH=5
         ;;
     "at91-sama5d4_xplained")
         EXPECTED_TCP_BANDWIDTH=90
         EXPECTED_UDP_BANDWIDTH=90
-        EXPECTED_BTL_BANDWIDTH=80
-        EXPECTED_LTB_BANDWIDTH=80
         ;;
     "sama53d")
         EXPECTED_TCP_BANDWIDTH=90
         EXPECTED_UDP_BANDWIDTH=120
-        EXPECTED_BTL_BANDWIDTH=30
-        EXPECTED_LTB_BANDWIDTH=150
         ;;
     *) # All values are in Mbits/sec (80 Mbits/sec should work on most boards)
         EXPECTED_TCP_BANDWIDTH=80 # Unidirectionnal test
         EXPECTED_UDP_BANDWIDTH=80 # Unidirectionnal test
-        EXPECTED_BTL_BANDWIDTH=80 # Board-to-laptop for bidirectionnal test
-        EXPECTED_LTB_BANDWIDTH=80 # Laptop-to-board for bidirectionnal test
         ;;
 esac
 
@@ -198,18 +174,6 @@ BTL_BANDWIDTH=$(( $(head -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
 LTB_BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
 echo "Board-to-laptop bandwidth: $BTL_BANDWIDTH Mbits/sec"
 echo "Laptop-to-board bandwidth: $LTB_BANDWIDTH Mbits/sec"
-if [ $LTB_BANDWIDTH -lt $EXPECTED_LTB_BANDWIDTH ]; then
-    echo "Laptop-to-board bandwidth too low. Expected: $EXPECTED_LTB_BANDWIDTH Mbits/sec"
-    RESULT=1
-else
-    echo "Laptop-to-board bandwidth value OK. (Expected: >$EXPECTED_LTB_BANDWIDTH Mbits/sec)"
-fi
-if [ $BTL_BANDWIDTH -lt $EXPECTED_BTL_BANDWIDTH ]; then
-    echo "Board-to-laptop bandwidth too low. Expected: $EXPECTED_BTL_BANDWIDTH Mbits/sec"
-    RESULT=1
-else
-    echo "Board-to-laptop bandwidth value OK. (Expected: >$EXPECTED_BTL_BANDWIDTH Mbits/sec)"
-fi
 
 if [ $RESULT -eq 0 ]; then
     echo "####   Successful    ####"
