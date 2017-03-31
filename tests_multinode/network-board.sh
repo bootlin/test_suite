@@ -213,8 +213,10 @@ fi
 
 if [ $RESULT -eq 0 ]; then
     echo "####   Successful    ####"
+    lava-send board-exit status=ok
 else
     echo "####   There was a non fatal failure somewhere (bandwidth too low?)    ####"
+    lava-send board-exit status=failed
 fi
 echo "#### End of network board test ####"
 exit $RESULT

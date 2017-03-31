@@ -86,6 +86,12 @@ fi
 lava-send laptop-bi-done status=success
 
 
+if ! check_status board-exit; then
+    echo "####   There was a non fatal failure somewhere (bandwidth too low?)    ####"
+    echo "#### End of network laptop test ####"
+    exit 1
+fi
+
 echo "####   Successful    ####"
 echo "#### End of network laptop test ####"
 exit 0
