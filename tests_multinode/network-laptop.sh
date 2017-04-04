@@ -8,7 +8,7 @@ check_status() {
     lava-wait $1
     STATUS=$(grep status /tmp/lava_multi_node_cache.txt | cut -d = -f 2)
     echo "Board status is \"$STATUS\""
-    if [ "$STATUS" = "failed" ] || [ "$STATUS" = "" ]; then
+    if [ "$STATUS" = "failed" ] || [ "$STATUS" = "" ]; then
         return 1
     fi
     return 0
