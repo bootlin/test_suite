@@ -1,0 +1,10 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: first-test
+    description: "First test: echo toto"
+    maintainer:
+        - florent.jacquet@free-electrons.com
+
+run:
+    steps:
+        - ./tests/first_test.sh `lava-self|sed 's/.\{3\}$//'`
