@@ -7,4 +7,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/first_test.sh `lava-self|sed 's/.\{3\}$//'`
+        - lava-test-case first-test --shell ./scripts/first_test.sh $DEVICE

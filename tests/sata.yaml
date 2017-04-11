@@ -7,4 +7,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/sata.sh `lava-self|sed 's/.\{3\}$//'`
+        - ./scripts/sata.sh $DEVICE

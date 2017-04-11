@@ -18,6 +18,8 @@ esac
 for PARTITION in $PARTITIONS; do
     if ! ls $PARTITION; then
         echo "Can't find ${PARTITION}. Aborting"
+        echo "Here are the available devices:"
+        ls -l /dev/mmc*
         exit 1
     fi
 

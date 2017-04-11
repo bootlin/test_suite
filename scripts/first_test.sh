@@ -5,6 +5,7 @@
 
 echo "toto"
 echo "Board: $1"
+echo "Parameter: $DEVICE"
 
 if [ $(tr -cd 0-9 </dev/urandom | head -c 1) -lt 7 ]; then
     echo "true";

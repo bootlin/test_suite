@@ -7,4 +7,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/mmc.sh `lava-self|sed 's/.\{3\}$//'`
+        - ./scripts/mmc.sh $DEVICE
