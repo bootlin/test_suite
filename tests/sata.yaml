@@ -1,10 +1,10 @@
 metadata:
     format: Lava-Test Test Definition 1.0
-    name: first-test
-    description: "First test: echo toto"
+    name: sata-test
+    description: "SATA test"
     maintainer:
         - florent.jacquet@free-electrons.com
 
 run:
     steps:
-        - ./scripts/first_test.sh `lava-self|sed 's/.\{3\}$//'`
+        - ./scripts/sata.sh `lava-self|sed 's/.\{3\}$//'`
