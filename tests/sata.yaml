@@ -7,4 +7,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/sata.sh $DEVICE
+        - lava-test-case sata --shell ./scripts/sata.sh $DEVICE

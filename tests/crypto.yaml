@@ -7,4 +7,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/crypto.sh $DEVICE
+        - lava-test-case crypto --shell ./scripts/crypto.sh $DEVICE

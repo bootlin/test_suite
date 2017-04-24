@@ -7,4 +7,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/mmc.sh $DEVICE
+        - lava-test-case mmc --shell ./scripts/mmc.sh $DEVICE

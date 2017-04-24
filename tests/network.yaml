@@ -10,4 +10,4 @@ metadata:
 
 run:
     steps:
-        - ./scripts/network-`lava-role`.sh `lava-self|sed 's/.\{3\}$//'`
+        - lava-test-case network --shell ./scripts/network-`lava-role`.sh `lava-self|sed 's/.\{3\}$//'`
