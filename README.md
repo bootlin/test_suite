@@ -2,8 +2,30 @@
 
 ## Adding a new test
 
-Just add your program in the `tests` folder. If the test is valid, it must
+Write your program in the `scripts` folder. If the test is valid, it must
 return `0`, otherwise, the test is considered as failed.
+
+Then you need to add its corresponding YAML file in the `tests` folder, to allow
+LAVA to run it. Don't hesitate to have a look at the existing ones. Still, here
+is a simple one:
+
+```
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: My-test-name
+
+run:
+    steps:
+        - lava-test-case a-custom-test-name --shell ./scripts/my_test.sh $DEVICE
+```
+
+  * `My-test-name` is only metadata, and is not that important
+  * `lava-test-case` is the command
+  * `a-custom-test-name` is the name that will be given in the TestCase instance
+    in LAVA
+  * `./scripts/my_test.sh $DEVICE` is the call to the script you want to run,
+    passing $DEVICE as argument. It's what makes the test to pass or fail
+    depending on the return value.
 
 Be careful that the test must be able to run on the target, with a very simple
 rootfs. Most of the common tools are unavailable.
@@ -27,10 +49,8 @@ have to think that you have two roles: `laptop` and `board`.
 Each role has its own shell script to run, in which you can call some helpers
 provided by LAVA to synchronize them.
 
-Moreover, a YAML file must be provided along the two script files, and will
-contain a list of commands to execute. It's where you just call your individual
-script using some helper.
-
+The YAML file must be adapted a bit to call the right scripts. Here is and
+example:
 ```
 metadata:
     format: Lava-Test Test Definition 1.0
@@ -61,6 +81,11 @@ useful among all the others `lava-*` commands.
 All those helpers can be used in the shell scripts called in Multinode tests.
 
 A complete reference can be found here:
-https://staging.validation.linaro.org/static/docs/v1/multinodeapi.html
+https://staging.validation.linaro.org/static/docs/v2/multinodeapi.html
+
+If needed, some helpers are also available in single tests, but still are less
+usefull than the multinode ones. Here is the reference:
+https://staging.validation.linaro.org/static/docs/v2/lava_test_shell.html#writing-a-test-for-lava-test-shell
+
 
 
