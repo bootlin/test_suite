@@ -1,0 +1,7 @@
+metadata:
+    format: Lava-Test Test Definition 1.0
+    name: $TEST
+
+run:
+    steps:
+        - lava-test-case $TEST --shell ./scripts/$TEST-`lava-role`.sh $DEVICE
