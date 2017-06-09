@@ -2,19 +2,15 @@
 
 echo "#### Beginning simple network board test ####"
 
+NH=192.168.2.1
+
 if [ $(ip l | wc -l) -le 2 ]; then
     echo "Only the loopback interface is registered"
     exit 1
 fi
 
-GW=$(ip r s | grep default | awk '{print $3}')
-if [ "$GW" = "" ]; then
-    echo "No default route."
-    exit 1
-fi
-
-if ! ping -c 4 $GW; then
-    echo "Cannot ping $GW. Aborting."
+if ! ping -c 4 $NH; then
+    echo "Cannot ping $NH. Aborting."
     exit 1
 fi
 echo "Ping OK."
