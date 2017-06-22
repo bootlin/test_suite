@@ -102,7 +102,11 @@ else
 fi
 
 
-echo "####     Successful     ####"
+if [ $RETURN_VALUE -eq 0 ]; then
+    echo "####     Successful     ####"
+else
+    echo "#### crypto test had a problem somewhere ####"
+fi
 echo "#### End of crypto test ####"
 exit $RETURN_VALUE
 
