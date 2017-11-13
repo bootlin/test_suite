@@ -10,9 +10,9 @@ case $1 in
 kernel/crypto/tcrypt.ko mode=100 sec=5 # hmac(md5)
 kernel/crypto/tcrypt.ko mode=101 sec=5 # hmac(sha1)
 kernel/crypto/tcrypt.ko mode=102 sec=5 # hmac(sha256)
-kernel/crypto/tcrypt.ko mode=302 sec=5 # md5 speed
-kernel/crypto/tcrypt.ko mode=303 sec=5 # sha1 speed
-kernel/crypto/tcrypt.ko mode=304 sec=5 # sha256 speed
+kernel/crypto/tcrypt.ko mode=402 sec=5 # md5 speed
+kernel/crypto/tcrypt.ko mode=403 sec=5 # sha1 speed
+kernel/crypto/tcrypt.ko mode=404 sec=5 # sha256 speed
 kernel/crypto/tcrypt.ko mode=500 sec=5 # AES
 "
     ;;
