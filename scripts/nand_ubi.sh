@@ -3,7 +3,7 @@
 # Maxime Ripard <maxime@free-electrons.com>
 #
 
-echo "#### Starting NAND test ####"
+echo "#### Starting NAND UBI test ####"
 
 # Define here the partitions given the LAVA device-type
 case $1 in
@@ -110,6 +110,6 @@ for PARTITION in $PARTITIONS; do
     rm -rf $MOUNTPOINT
 done
 
-echo "#### NAND test passed    ####"
+echo "#### NAND UBI test passed    ####"
 exit 0
 
