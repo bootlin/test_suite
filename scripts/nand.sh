@@ -27,6 +27,7 @@ for i in $(seq 0 $NUM_MTD);
 do
     if [ `cat /sys/class/mtd/mtd$i/name` = "$MTD_NAME" ]; then
 	PARTITION=/dev/mtd$i
+	MTD_ID=$i
 	echo "Partition $MTD_NAME found in $PARTITION"
 	break
     fi
@@ -46,10 +47,10 @@ fi
 # The new driver still displays "pxa3x" in the dmesg so we base on
 # sysfs to retrieve the current driver used.
 echo "Checking which NAND driver we are using"
-if ls -l /sys/bus/platform/drivers/ | grep nfc; then
+if ls -l /sys/class/mtd/mtd$MTD_ID/device/driver | grep nfc; then
     echo "Using the new marvell-nfc driver"
     PXA_DRIVER=0
-elif ls -l /sys/bus/platform/drivers/ | grep pxa3; then
+elif ls -l /sys/class/mtd/mtd$MTD_ID/device/driver | grep pxa3; then
     echo "Using the old pxa3xx driver"
     PXA_DRIVER=1
 else
