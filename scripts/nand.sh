@@ -19,6 +19,16 @@ case $1 in
     # You can add more device-type here
 esac
 
+# Check if the NAND driver exists
+if [ -d /sys/bus/platform/drivers/marvell-nfc/ ] ||
+       [ -d /sys/bus/platform/drivers/pxa3xx-nand/ ]; then
+    echo "NAND driver found, continue"
+else
+    echo "NAND driver not found, exit with success."
+    echo "Check the kernel configuration"
+    exit 0
+fi
+
 # Count the number of MTD partitions
 NUM_MTD=`ls -l /sys/class/mtd/mtd*/name | wc -l`
 NUM_MTD=`expr $NUM_MTD - 1`
