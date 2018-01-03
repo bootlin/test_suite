@@ -3,6 +3,9 @@
 # Mylène Josserand <mylene@free-electrons.com>
 #
 
+# Source custom-template to have generic functions
+TEST=nand source ./custom-template.sh
+
 echo "#### Starting NAND test ####"
 
 ITERATIONS=10
@@ -26,7 +29,7 @@ if [ -d /sys/bus/platform/drivers/marvell-nfc/ ] ||
 else
     echo "NAND driver not found, exit with success."
     echo "Check the kernel configuration"
-    exit 0
+    lava_skip
 fi
 
 # Count the number of MTD partitions
@@ -48,7 +51,7 @@ if ! ls $PARTITION; then
     echo "Can't find ${PARTITION}. Aborting"
     echo "Here are the available partitions:"
     ls -l /dev/mtd*
-    exit 1
+    lava_fail
 fi
 
 # Check which driver we are running to know which tests perform.
@@ -66,7 +69,7 @@ elif ls -l /sys/class/mtd/mtd$MTD_ID/device/driver | grep pxa3; then
     PXA_DRIVER=1
 else
     echo "NAND driver not recognized. Aborting"
-    exit 1
+    lava_fail
 fi
 
 # Execute nandbiterrs only in case of new "marvell-nfc" driver
@@ -74,7 +77,7 @@ if [ $PXA_DRIVER -eq 0 ]; then
     echo "Executing nandbiterrs on $PARTITION"
     if ! nandbiterrs -i $PARTITION > $TMP_LOG 2>&1; then
 	echo "nandbiterrs on ${PARTITION} failed. Aborting"
-	exit 1
+	lava_fail
     else
 	BITERR_DONE=`grep "per page" $TMP_LOG | awk {'print $4'}`
 	# nandbiterrs must test the number of ecc + 1
@@ -83,7 +86,7 @@ if [ $PXA_DRIVER -eq 0 ]; then
 	echo "Comparing $BITERR_DONE and $BITERR_READ for nandbiterrs test"
 	if [ $BITERR_DONE -ne $BITERR_READ ]; then
 	    echo "nandbiterrs results are incorrect. Aborting"
-	    exit 1
+	    lava_fail
 	else
 	    echo "nanbiterrs results are correct."
 	fi
@@ -93,20 +96,20 @@ fi
 echo "Executing nandpagetest on $PARTITION"
 if ! nandpagetest -c $ITERATIONS $PARTITION; then
     echo "nandpagetest on ${PARTITION} failed. Aborting"
-    exit 1
+    lava_fail
 fi
 
 echo "Executing nandsubpagetest on $PARTITION"
 if ! nandsubpagetest -c $ITERATIONS $PARTITION; then
     echo "nandsubpagetest on ${PARTITION} failed. Aborting"
-    exit 1
+    lava_fail
 fi
 
 echo "Executing flash_speed on $PARTITION"
 if ! flash_speed -d -c $ITERATIONS $PARTITION; then
     echo "flash_speed on ${PARTITION} failed. Aborting"
-    exit 1
+    lava_fail
 fi
 
 echo "#### NAND test passed    ####"
-exit 0
+lava_pass
