@@ -6,6 +6,7 @@
 echo "#### Starting NAND test ####"
 
 ITERATIONS=10
+TMP_LOG=/tmp/nand.log
 
 #Define here the partitions given the LAVA device-type
 case $1 in
@@ -61,9 +62,21 @@ fi
 # Execute nandbiterrs only in case of new "marvell-nfc" driver
 if [ $PXA_DRIVER -eq 0 ]; then
     echo "Executing nandbiterrs on $PARTITION"
-    if ! nandbiterrs -i $PARTITION; then
+    if ! nandbiterrs -i $PARTITION > $TMP_LOG 2>&1; then
 	echo "nandbiterrs on ${PARTITION} failed. Aborting"
 	exit 1
+    else
+	BITERR_DONE=`grep "per page" $TMP_LOG | awk {'print $4'}`
+	# nandbiterrs must test the number of ecc + 1
+	BITERR_DONE=`expr $BITERR_DONE - 1`
+	BITERR_READ=`cat /sys/class/mtd/mtd$MTD_ID/ecc_strength`
+	echo "Comparing $BITERR_DONE and $BITERR_READ for nandbiterrs test"
+	if [ $BITERR_DONE -ne $BITERR_READ ]; then
+	    echo "nandbiterrs results are incorrect. Aborting"
+	    exit 1
+	else
+	    echo "nanbiterrs results are correct."
+	fi
     fi
 fi
 
