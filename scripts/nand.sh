@@ -4,7 +4,7 @@
 #
 
 # Source custom-template to have generic functions
-TEST=nand source ./custom-template.sh
+TEST=nand source ./scripts/custom-template.sh
 
 echo "#### Starting NAND test ####"
 
