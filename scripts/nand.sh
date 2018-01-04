@@ -3,22 +3,6 @@
 # Mylène Josserand <mylene@free-electrons.com>
 #
 
-# Create short functions to handle pass/fail/skip
-lava_pass()
-{
-    lava-test-case nand --result pass
-}
-
-lava_fail()
-{
-    lava-test-case nand --result fail
-}
-
-lava_skip()
-{
-    lava-test-case nand --result skip
-}
-
 echo "#### Starting NAND test ####"
 
 ITERATIONS=10
@@ -42,7 +26,7 @@ if [ -d /sys/bus/platform/drivers/marvell-nfc/ ] ||
 else
     echo "NAND driver not found, exit with success."
     echo "Check the kernel configuration"
-    lava_skip
+    lava-test-case nand --result skip
     exit 0
 fi
 
@@ -65,7 +49,7 @@ if ! ls $PARTITION; then
     echo "Can't find ${PARTITION}. Aborting"
     echo "Here are the available partitions:"
     cat /sys/class/mtd/mtd*/name
-    lava_fail
+    lava-test-case nand --result fail
     exit 1
 fi
 
@@ -84,7 +68,7 @@ elif ls -l /sys/class/mtd/mtd$MTD_ID/device/driver | grep pxa3; then
     PXA_DRIVER=1
 else
     echo "NAND driver not recognized. Aborting"
-    lava_fail
+    lava-test-case nand --result fail
     exit 1
 fi
 
@@ -93,7 +77,7 @@ if [ $PXA_DRIVER -eq 0 ]; then
     echo "Executing nandbiterrs on $PARTITION"
     if ! nandbiterrs -i $PARTITION 2>&1 | tee $TMP_LOG; then
 	echo "nandbiterrs on ${PARTITION} failed. Aborting"
-	lava_fail
+	lava-test-case nandbiterrs --result fail
 	exit 1
     else
 	BITERR_DONE=`grep "Read error after" $TMP_LOG | awk {'print $4'}`
@@ -103,10 +87,11 @@ if [ $PXA_DRIVER -eq 0 ]; then
 	echo "Comparing $BITERR_DONE and $BITERR_READ for nandbiterrs test"
 	if [ $BITERR_DONE -ne $BITERR_READ ]; then
 	    echo "nandbiterrs results are incorrect. Aborting"
-	    lava_fail
+	    lava-test-case nandbiterrs --result fail
 	    exit 1
 	else
 	    echo "nanbiterrs results are correct."
+	    lava-test-case nandbiterrs --result pass
 	fi
     fi
 else
@@ -116,24 +101,30 @@ fi
 echo "Executing nandpagetest on $PARTITION"
 if ! nandpagetest -c $ITERATIONS $PARTITION; then
     echo "nandpagetest on ${PARTITION} failed. Aborting"
-    lava_fail
+    lava-test-case nandpagetest --result fail
     exit 1
+else
+    lava-test-case nandpagetest --result pass
 fi
 
 echo "Executing nandsubpagetest on $PARTITION"
 if ! nandsubpagetest -c $ITERATIONS $PARTITION; then
     echo "nandsubpagetest on ${PARTITION} failed. Aborting"
-    lava_fail
+    lava-test-case nandsubpagetest --result fail
     exit 1
+else
+    lava-test-case nandsubpagetest --result pass
 fi
 
 echo "Executing flash_speed on $PARTITION"
 if ! flash_speed -d -c $ITERATIONS $PARTITION; then
     echo "flash_speed on ${PARTITION} failed. Aborting"
-    lava_fail
+    lava-test-case flash_speed --result fail
     exit 1
+else
+    lava-test-case flash_speed --result pass
 fi
 
 echo "#### NAND test passed    ####"
-lava_pass
+lava-test-case nand --result pass
 exit 0
