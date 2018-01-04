@@ -5,5 +5,5 @@ metadata:
 run:
     steps:
         - lava-test-set start $TEST
-        - $(./scripts/$TEST.sh $DEVICE)
+        - ./scripts/$TEST.sh $DEVICE
         - lava-test-set stop $TEST
