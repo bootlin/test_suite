@@ -64,7 +64,7 @@ done
 if ! ls $PARTITION; then
     echo "Can't find ${PARTITION}. Aborting"
     echo "Here are the available partitions:"
-    ls -l /dev/mtd*
+    cat /sys/class/mtd/mtd*/name
     lava_fail
     exit 1
 fi
@@ -91,12 +91,12 @@ fi
 # Execute nandbiterrs only in case of new "marvell-nfc" driver
 if [ $PXA_DRIVER -eq 0 ]; then
     echo "Executing nandbiterrs on $PARTITION"
-    if ! nandbiterrs -i $PARTITION > $TMP_LOG 2>&1; then
+    if ! nandbiterrs -i $PARTITION 2>&1 | tee $TMP_LOG; then
 	echo "nandbiterrs on ${PARTITION} failed. Aborting"
 	lava_fail
 	exit 1
     else
-	BITERR_DONE=`grep "per page" $TMP_LOG | awk {'print $4'}`
+	BITERR_DONE=`grep "Read error after" $TMP_LOG | awk {'print $4'}`
 	# nandbiterrs must test the number of ecc + 1
 	BITERR_DONE=`expr $BITERR_DONE - 1`
 	BITERR_READ=`cat /sys/class/mtd/mtd$MTD_ID/ecc_strength`
@@ -109,6 +109,8 @@ if [ $PXA_DRIVER -eq 0 ]; then
 	    echo "nanbiterrs results are correct."
 	fi
     fi
+else
+    echo "By-passing nandbiterrs on $PARTITION because of pxa3 driver used"
 fi
 
 echo "Executing nandpagetest on $PARTITION"
