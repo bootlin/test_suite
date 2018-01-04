@@ -96,6 +96,7 @@ if [ $PXA_DRIVER -eq 0 ]; then
     fi
 else
     echo "By-passing nandbiterrs on $PARTITION because of pxa3 driver used"
+    lava-test-case nandbiterrs --result skip
 fi
 
 echo "Executing nandpagetest on $PARTITION"
@@ -103,28 +104,24 @@ if ! nandpagetest -c $ITERATIONS $PARTITION; then
     echo "nandpagetest on ${PARTITION} failed. Aborting"
     lava-test-case nandpagetest --result fail
     exit 1
-else
-    lava-test-case nandpagetest --result pass
 fi
+lava-test-case nandpagetest --result pass
 
 echo "Executing nandsubpagetest on $PARTITION"
 if ! nandsubpagetest -c $ITERATIONS $PARTITION; then
     echo "nandsubpagetest on ${PARTITION} failed. Aborting"
     lava-test-case nandsubpagetest --result fail
     exit 1
-else
-    lava-test-case nandsubpagetest --result pass
 fi
+lava-test-case nandsubpagetest --result pass
 
 echo "Executing flash_speed on $PARTITION"
 if ! flash_speed -d -c $ITERATIONS $PARTITION; then
     echo "flash_speed on ${PARTITION} failed. Aborting"
     lava-test-case flash_speed --result fail
     exit 1
-else
-    lava-test-case flash_speed --result pass
 fi
+lava-test-case flash_speed --result pass
 
 echo "#### NAND test passed    ####"
-lava-test-case nand --result pass
 exit 0
