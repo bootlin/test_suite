@@ -3,8 +3,21 @@
 # Mylène Josserand <mylene@free-electrons.com>
 #
 
-# Source custom-template to have generic functions
-TEST=nand source ./scripts/custom-template.sh
+# Create short functions to handle pass/fail/skip
+lava_pass()
+{
+    lava-test-case nand --result pass
+}
+
+lava_fail()
+{
+    lava-test-case nand --result fail
+}
+
+lava_skip()
+{
+    lava-test-case nand --result skip
+}
 
 echo "#### Starting NAND test ####"
 
