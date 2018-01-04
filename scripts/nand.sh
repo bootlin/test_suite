@@ -43,6 +43,7 @@ else
     echo "NAND driver not found, exit with success."
     echo "Check the kernel configuration"
     lava_skip
+    exit 0
 fi
 
 # Count the number of MTD partitions
@@ -65,6 +66,7 @@ if ! ls $PARTITION; then
     echo "Here are the available partitions:"
     ls -l /dev/mtd*
     lava_fail
+    exit 1
 fi
 
 # Check which driver we are running to know which tests perform.
@@ -83,6 +85,7 @@ elif ls -l /sys/class/mtd/mtd$MTD_ID/device/driver | grep pxa3; then
 else
     echo "NAND driver not recognized. Aborting"
     lava_fail
+    exit 1
 fi
 
 # Execute nandbiterrs only in case of new "marvell-nfc" driver
@@ -91,6 +94,7 @@ if [ $PXA_DRIVER -eq 0 ]; then
     if ! nandbiterrs -i $PARTITION > $TMP_LOG 2>&1; then
 	echo "nandbiterrs on ${PARTITION} failed. Aborting"
 	lava_fail
+	exit 1
     else
 	BITERR_DONE=`grep "per page" $TMP_LOG | awk {'print $4'}`
 	# nandbiterrs must test the number of ecc + 1
@@ -100,6 +104,7 @@ if [ $PXA_DRIVER -eq 0 ]; then
 	if [ $BITERR_DONE -ne $BITERR_READ ]; then
 	    echo "nandbiterrs results are incorrect. Aborting"
 	    lava_fail
+	    exit 1
 	else
 	    echo "nanbiterrs results are correct."
 	fi
@@ -110,19 +115,23 @@ echo "Executing nandpagetest on $PARTITION"
 if ! nandpagetest -c $ITERATIONS $PARTITION; then
     echo "nandpagetest on ${PARTITION} failed. Aborting"
     lava_fail
+    exit 1
 fi
 
 echo "Executing nandsubpagetest on $PARTITION"
 if ! nandsubpagetest -c $ITERATIONS $PARTITION; then
     echo "nandsubpagetest on ${PARTITION} failed. Aborting"
     lava_fail
+    exit 1
 fi
 
 echo "Executing flash_speed on $PARTITION"
 if ! flash_speed -d -c $ITERATIONS $PARTITION; then
     echo "flash_speed on ${PARTITION} failed. Aborting"
     lava_fail
+    exit 1
 fi
 
 echo "#### NAND test passed    ####"
 lava_pass
+exit 0
