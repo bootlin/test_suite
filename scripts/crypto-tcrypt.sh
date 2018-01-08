@@ -7,9 +7,6 @@
 case $1 in
     "armada-370-db"|"armada-370-rd"|"armada-375-db"|"armada-385-db-ap"|"armada-388-clearfog"|"armada-388-gp"|"armada-xp-db"|"armada-xp-gp"|"armada-xp-linksys-mamba"|"armada-xp-openblocks-ax3-4")
         MODULES="
-kernel/crypto/tcrypt.ko mode=100 sec=5 # hmac(md5)
-kernel/crypto/tcrypt.ko mode=101 sec=5 # hmac(sha1)
-kernel/crypto/tcrypt.ko mode=102 sec=5 # hmac(sha256)
 kernel/crypto/tcrypt.ko mode=402 sec=5 # md5 speed
 kernel/crypto/tcrypt.ko mode=403 sec=5 # sha1 speed
 kernel/crypto/tcrypt.ko mode=404 sec=5 # sha256 speed
