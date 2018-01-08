@@ -7,10 +7,10 @@
 case $1 in
     "armada-370-db"|"armada-370-rd"|"armada-375-db"|"armada-385-db-ap"|"armada-388-clearfog"|"armada-388-gp"|"armada-xp-db"|"armada-xp-gp"|"armada-xp-linksys-mamba"|"armada-xp-openblocks-ax3-4")
         MODULES="
-kernel/crypto/tcrypt.ko mode=402 sec=5 # md5 speed
-kernel/crypto/tcrypt.ko mode=403 sec=5 # sha1 speed
-kernel/crypto/tcrypt.ko mode=404 sec=5 # sha256 speed
-kernel/crypto/tcrypt.ko mode=500 sec=5 # AES
+kernel/crypto/tcrypt.ko mode=402 sec=1 # md5 speed
+kernel/crypto/tcrypt.ko mode=403 sec=1 # sha1 speed
+kernel/crypto/tcrypt.ko mode=404 sec=1 # sha256 speed
+kernel/crypto/tcrypt.ko mode=500 sec=1 # AES
 "
     ;;
     # You can add more device-type here
