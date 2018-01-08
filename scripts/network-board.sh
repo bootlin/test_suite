@@ -111,10 +111,12 @@ if ! check_status laptop-tcp-ready; then
     exit 1
 fi
 if ! iperf -c $LAPTOP -y c > /tmp/iperf.log; then
+    cat /tmp/iperf.log
     echo "Can not launch iperf or iperf failed. Aborting"
     lava-send board-tcp-done status=failed
     exit 1
 fi
+cat /tmp/iperf.log
 BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
 echo "TCP bandwidth: $BANDWIDTH Mbits/sec"
 if [ $BANDWIDTH -lt $EXPECTED_TCP_BANDWIDTH ]; then
@@ -132,10 +134,12 @@ if ! check_status laptop-udp-ready; then
 fi
 # Testing with very high bandwidth (4000 Gbits/sec) to get maximum value
 if ! iperf -c $LAPTOP -u -b 4000000000 -y c > /tmp/iperf.log; then
+    cat /tmp/iperf.log
     echo "Can not launch iperf or iperf failed. Aborting"
     lava-send board-udp-done status=failed
     exit 1
 fi
+cat /tmp/iperf.log
 BANDWIDTH=$(( $(tail -n 1 /tmp/iperf.log | cut -d , -f 9) / 1000000))
 echo "UDP bandwidth: $BANDWIDTH Mbits/sec"
 if [ $BANDWIDTH -lt $EXPECTED_UDP_BANDWIDTH ]; then
