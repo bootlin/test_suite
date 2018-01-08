@@ -21,6 +21,7 @@ case $1 in
         # You can add specific algorithms here
     ;;
     "armada-370-db"|"armada-370-rd"|"armada-375-db"|"armada-385-db-ap"|"armada-388-clearfog"|"armada-388-gp"|"armada-xp-db"|"armada-xp-gp"|"armada-xp-linksys-mamba"|"armada-xp-openblocks-ax3-4")
+        DRIVER="marvell-cesa"
         MODULES="
         kernel/crypto/des_generic.ko
         kernel/drivers/crypto/marvell/marvell-cesa.ko
@@ -51,17 +52,26 @@ echo "#### Beginning crypto test ####"
 
 RETURN_VALUE=0
 
-echo "==== Probing needed modules ===="
-cd /lib/modules/$(uname -r)
-for MODULE in $MODULES; do
-    echo "---- Probing $MODULE ----"
-    if insmod $MODULE; then
-        echo "OK"
-    else
-        echo "FAIL"
-        RETURN_VALUE=1
-    fi
-done
+# We check:
+# 1/ if the driver exists builtin
+# 2/ if not, if the modules can be inserted successfully
+# 3/ if not, we fail
+echo "==== Checking if driver is builtin ===="
+if [ -d /sys/bus/platform/drivers/$DRIVER ]; then
+    echo "Driver $DRIVER exists, skip modules"
+else
+    echo "==== Driver compiled as modules, try to insert it ===="
+    cd /lib/modules/$(uname -r)
+    for MODULE in $MODULES; do
+	echo "Inserting $MODULE"
+	if insmod $MODULE; then
+            echo "OK"
+	else
+            echo "FAIL"
+            RETURN_VALUE=1
+	fi
+    done
+fi
 
 echo "==== Doing basic checks ===="
 
